@@ -1,8 +1,14 @@
 # backend/config.py
 import os
+import logging
 from pathlib import Path
 
-SECRET_KEY = os.environ.get("TODO_SECRET_KEY", "dev-secret-key-change-in-prod")
+logger = logging.getLogger(__name__)
+
+SECRET_KEY = os.environ.get("TODO_SECRET_KEY", "")
+if not SECRET_KEY:
+    SECRET_KEY = "dev-secret-key-change-in-prod"
+    logger.warning("TODO_SECRET_KEY not set — using insecure default. Set this env var in production!")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 480   # 8 小时
 REFRESH_TOKEN_EXPIRE_DAYS = 7
