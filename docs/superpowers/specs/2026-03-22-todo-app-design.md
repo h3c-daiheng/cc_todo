@@ -1,7 +1,7 @@
 # 待办应用设计文档
 
 **日期：** 2026-03-22
-**版本：** 1.1
+**版本：** 1.2
 
 ---
 
@@ -282,9 +282,10 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 | DELETE | `/comments/{id}` | 删除评论 | 作者或管理员 |
 | POST | `/tasks/{id}/attachments` | 上传附件 | 有查看权限的用户 |
 | GET | `/attachments/{id}/download` | 下载附件（权限校验后流式传输） | 有查看权限的用户 |
-| DELETE | `/attachments/{id}` | 删除附件及磁盘文件 | 上传人/团队负责人/管理员 |
+| DELETE | `/attachments/{id}` | 删除附件及磁盘文件 | 上传人/任务创建人/团队负责人/管理员 |
 | GET | `/teams` | 我的团队列表 | 登录用户 |
 | POST | `/teams` | 创建团队 | 登录用户 |
+| GET | `/teams/{id}` | 团队详情及成员列表 | 团队成员 |
 | GET | `/teams/{id}/tasks` | 团队任务列表（分页） | 团队成员 |
 | POST | `/teams/{id}/members` | 添加成员 | 团队负责人 |
 | DELETE | `/teams/{id}/members/{uid}` | 移除成员 | 团队负责人 |
@@ -308,6 +309,7 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 
 - Access Token：JWT，有效期 8 小时，存于前端内存（不存 localStorage，防 XSS）
 - Refresh Token：有效期 7 天，存于 HttpOnly Cookie，前端无法通过 JS 读取；用户注销或账号被停用时，后端清除 Cookie 并将 token 加入内存黑名单（服务重启后黑名单清空，此为局域网可接受的权衡）
+- `dependencies.py` 的认证依赖在每次请求时检查 `is_active`，账号停用后即使 Access Token 未过期也立即拒绝访问
 - `SECRET_KEY`：从环境变量 `TODO_SECRET_KEY` 读取，不写入代码或配置文件；首次部署时由运维生成随机字符串
 
 ### 登录防暴力破解
@@ -362,9 +364,9 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 1. 配置环境变量 `TODO_SECRET_KEY`（随机生成，如 `openssl rand -hex 32`）
 2. 配置环境变量 `TODO_UPLOAD_DIR`（附件存储绝对路径，如 `/var/todo/uploads`，默认 `./uploads`）
 3. 运行 `python scripts/init_admin.py --username admin --email admin@company.com`，脚本交互式提示输入密码；若账号已存在则跳过，避免重复执行问题
-3. 管理员登录后台，配置 SMTP 信息
-4. 前端执行 `npm run build`，产物由 Nginx 托管
-5. 后端执行 `uvicorn main:app --host 0.0.0.0 --port 8000`
+4. 管理员登录后台，配置 SMTP 信息
+5. 前端执行 `npm run build`，产物由 Nginx 托管
+6. 后端执行 `uvicorn main:app --host 0.0.0.0 --port 8000`
 
 ---
 
