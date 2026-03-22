@@ -65,8 +65,8 @@ def normalize_labels(labels: list[str]) -> list[str]:
     return result
 
 
-def serialize_task(task: Task) -> dict:
-    return {
+def serialize_task(task: Task, include_detail: bool = False) -> dict:
+    result = {
         "id": task.id,
         "title": task.title,
         "description": task.description,
@@ -80,6 +80,28 @@ def serialize_task(task: Task) -> dict:
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "updated_at": task.updated_at.isoformat() if task.updated_at else None,
     }
+    if include_detail:
+        result["comments"] = [
+            {
+                "id": c.id,
+                "user_id": c.user_id,
+                "content": c.content,
+                "created_at": c.created_at.isoformat() if c.created_at else None,
+            }
+            for c in task.comments
+        ]
+        result["attachments"] = [
+            {
+                "id": a.id,
+                "filename": a.filename,
+                "file_size": a.file_size,
+                "mime_type": a.mime_type,
+                "uploaded_by": a.uploaded_by,
+                "created_at": a.created_at.isoformat() if a.created_at else None,
+            }
+            for a in task.attachments
+        ]
+    return result
 
 
 def get_task_or_404(db: Session, task_id: int) -> Task:
@@ -215,7 +237,7 @@ def get_task(
     current_user: User = Depends(get_current_user),
 ):
     task = ensure_task_view_permission(db, get_task_or_404(db, task_id), current_user)
-    return ok(serialize_task(task))
+    return ok(serialize_task(task, include_detail=True))
 
 
 @router.put("/{task_id}")
