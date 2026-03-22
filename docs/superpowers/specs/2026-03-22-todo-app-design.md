@@ -127,6 +127,8 @@ todo-app/
 | team_id | INTEGER | FK → teams.id | 团队 ID |
 | joined_at | DATETIME | NOT NULL | 加入时间（UTC） |
 
+联合主键：`(user_id, team_id)`，防止重复加入同一团队。
+
 ### tasks（任务表）
 
 | 字段 | 类型 | 约束 | 说明 |
@@ -244,12 +246,13 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 - 附件支持上传：图片（jpg/png/gif）、PDF、Office 文档（doc/docx/xls/xlsx/ppt/pptx）
 - 单文件上传限制：20MB
 - 服务端通过 `python-magic` 验证真实 MIME 类型，不信任文件扩展名
-- 附件存储于服务器 `uploads/` 目录，文件名使用 UUID 防冲突
+- 附件存储路径由环境变量 `TODO_UPLOAD_DIR` 指定（绝对路径，如 `/var/todo/uploads`），默认值为后端工作目录下的 `uploads/`
 - 附件下载通过 `GET /api/attachments/{id}/download` 接口流式传输，后端校验权限后才允许下载；不暴露磁盘路径
 
 ### 6.4 每日邮件提醒
 
 - 每天指定小时整点（默认 8:00，时区以服务器本地时区为准）由 APScheduler 触发
+- 判断"今日截止"时，`due_date`（日期型，无时区）与服务器本地日期比较，统一用 `datetime.date.today()` 取本地日期，不依赖 UTC
 - 邮件接收人：
   - **任务负责人**：汇总名下当天截止及已逾期的任务
   - **团队负责人**：汇总所负责团队中当天截止及逾期的全部任务
@@ -266,16 +269,20 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 | 方法 | 路径 | 说明 | 权限 |
 |------|------|------|------|
 | POST | `/auth/login` | 登录，返回 access_token + refresh_token | 公开 |
+| POST | `/auth/logout` | 注销，清除 refresh_token Cookie | 登录用户 |
 | POST | `/auth/refresh` | 用 refresh_token 换新 access_token | 持有 refresh_token |
 | GET | `/tasks` | 任务列表（支持分页、筛选） | 登录用户 |
 | POST | `/tasks` | 创建任务 | 登录用户 |
 | GET | `/tasks/{id}` | 任务详情 | 有权限的用户 |
-| PUT | `/tasks/{id}` | 编辑任务 | 见权限表 |
-| DELETE | `/tasks/{id}` | 删除任务 | 见权限表 |
+| PUT | `/tasks/{id}` | 编辑任务内容（标题/描述/优先级/截止日期/标签） | 创建人/团队负责人/管理员 |
+| PATCH | `/tasks/{id}/status` | 修改任务状态 | 创建人/负责人/团队负责人/管理员 |
+| PATCH | `/tasks/{id}/assignee` | 修改任务负责人 | 创建人/团队负责人/管理员 |
+| DELETE | `/tasks/{id}` | 删除任务 | 创建人/团队负责人/管理员 |
 | POST | `/tasks/{id}/comments` | 发布评论 | 有查看权限的用户 |
 | DELETE | `/comments/{id}` | 删除评论 | 作者或管理员 |
 | POST | `/tasks/{id}/attachments` | 上传附件 | 有查看权限的用户 |
 | GET | `/attachments/{id}/download` | 下载附件（权限校验后流式传输） | 有查看权限的用户 |
+| DELETE | `/attachments/{id}` | 删除附件及磁盘文件 | 上传人/团队负责人/管理员 |
 | GET | `/teams` | 我的团队列表 | 登录用户 |
 | POST | `/teams` | 创建团队 | 登录用户 |
 | GET | `/teams/{id}/tasks` | 团队任务列表（分页） | 团队成员 |
@@ -300,7 +307,7 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 ### 认证与 Token
 
 - Access Token：JWT，有效期 8 小时，存于前端内存（不存 localStorage，防 XSS）
-- Refresh Token：有效期 7 天，存于 HttpOnly Cookie，前端无法通过 JS 读取
+- Refresh Token：有效期 7 天，存于 HttpOnly Cookie，前端无法通过 JS 读取；用户注销或账号被停用时，后端清除 Cookie 并将 token 加入内存黑名单（服务重启后黑名单清空，此为局域网可接受的权衡）
 - `SECRET_KEY`：从环境变量 `TODO_SECRET_KEY` 读取，不写入代码或配置文件；首次部署时由运维生成随机字符串
 
 ### 登录防暴力破解
@@ -353,7 +360,8 @@ SMTP 相关配置项：`smtp_host`、`smtp_port`、`smtp_user`、`smtp_password`
 ## 11. 初始部署流程
 
 1. 配置环境变量 `TODO_SECRET_KEY`（随机生成，如 `openssl rand -hex 32`）
-2. 运行 `python scripts/init_admin.py` 创建第一个管理员账号
+2. 配置环境变量 `TODO_UPLOAD_DIR`（附件存储绝对路径，如 `/var/todo/uploads`，默认 `./uploads`）
+3. 运行 `python scripts/init_admin.py --username admin --email admin@company.com`，脚本交互式提示输入密码；若账号已存在则跳过，避免重复执行问题
 3. 管理员登录后台，配置 SMTP 信息
 4. 前端执行 `npm run build`，产物由 Nginx 托管
 5. 后端执行 `uvicorn main:app --host 0.0.0.0 --port 8000`
