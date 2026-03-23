@@ -8,15 +8,21 @@ app = FastAPI(title="Todo App API")
 @app.on_event("startup")
 def startup():
     create_tables()
-    from scheduler import start_scheduler
+
     from database import SessionLocal
+    from services.admin_init import ensure_admins
+
     db = SessionLocal()
     try:
+        ensure_admins(db)
+
         from models import SystemSetting
         row = db.get(SystemSetting, "email_send_hour")
         hour = int(row.value) if row and row.value else 8
     finally:
         db.close()
+
+    from scheduler import start_scheduler
     start_scheduler(hour)
 
 app.include_router(auth.router, prefix="/api/v1")

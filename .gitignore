@@ -11,6 +11,9 @@ __pycache__/
 # Uploads directory
 backend/uploads/
 
+# Admin config (secrets)
+backend/admin.yaml
+
 # Virtual environments
 .venv/
 venv/
