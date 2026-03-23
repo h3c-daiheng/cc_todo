@@ -2,6 +2,9 @@
   <div class="page" v-if="task">
     <el-page-header @back="router.back()">
       <template #content>{{ task.title }}</template>
+      <template #extra>
+        <el-button type="danger" @click="deleteTask">删除</el-button>
+      </template>
     </el-page-header>
 
     <el-card class="detail-card">
@@ -51,7 +54,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api/index.js'
 import CommentList from '../components/CommentList.vue'
 import FileUpload from '../components/FileUpload.vue'
@@ -88,6 +91,21 @@ async function updateStatus(status) {
   } catch (e) {
     ElMessage.error('更新失败')
     await loadTask() // revert
+  }
+}
+
+async function deleteTask() {
+  try {
+    await ElMessageBox.confirm('确定要删除该任务吗？', '确认', { type: 'warning' })
+  } catch {
+    return
+  }
+  try {
+    await api.delete(`/tasks/${task.value.id}`)
+    ElMessage.success('任务已删除')
+    router.back()
+  } catch (e) {
+    ElMessage.error('删除失败')
   }
 }
 
