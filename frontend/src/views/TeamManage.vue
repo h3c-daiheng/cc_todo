@@ -101,8 +101,8 @@ onMounted(loadTeam)
 </script>
 
 <style scoped>
-.page { padding: 24px; max-width: 900px; margin: 0 auto; }
-.card { margin-top: 24px; }
+.page { padding: 24px; max-width: 900px; }
+.card { margin-top: 24px; border-radius: 12px; border: 1px solid var(--border); }
 .card-header { display: flex; justify-content: space-between; align-items: center; }
 .add-member { display: flex; gap: 8px; align-items: center; }
 </style>

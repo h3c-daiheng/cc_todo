@@ -111,7 +111,7 @@ onMounted(loadUsers)
 </script>
 
 <style scoped>
-.page { padding: 24px; max-width: 1000px; margin: 0 auto; }
+.page { padding: 24px; max-width: 1000px; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-h2 { color: #E8572A; font-size: 22px; font-weight: 700; margin: 0; }
+h2 { color: var(--text-primary); font-size: 20px; font-weight: 700; margin: 0; }
 </style>

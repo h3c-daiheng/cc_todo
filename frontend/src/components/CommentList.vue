@@ -50,11 +50,11 @@ async function submit() {
 
 <style scoped>
 .comment-section { display: flex; flex-direction: column; gap: 12px; }
-.empty { color: #aaa; text-align: center; padding: 16px; }
-.comment { background: #FAFAFA; border-radius: 8px; padding: 10px 14px; }
+.empty { color: var(--text-muted); text-align: center; padding: 16px; }
+.comment { background: var(--card-inner-bg); border-radius: 8px; padding: 10px 14px; }
 .comment-header { display: flex; justify-content: space-between; margin-bottom: 4px; }
-.author { font-weight: 600; color: #E8572A; font-size: 13px; }
-.time { font-size: 12px; color: #aaa; }
-.content { color: #2C2C2C; font-size: 14px; }
+.author { font-weight: 600; color: var(--primary); font-size: 13px; }
+.time { font-size: 12px; color: var(--text-muted); }
+.content { color: var(--text-primary); font-size: 14px; }
 .comment-input { margin-top: 8px; }
 </style>

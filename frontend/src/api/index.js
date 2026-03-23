@@ -19,7 +19,7 @@ api.interceptors.response.use(
       err.config._retry = true
       try {
         const res = await api.post('/auth/refresh')
-        setToken(res.data.access_token)
+        setToken(res.data.access_token || res.access_token)
         err.config.headers.Authorization = `Bearer ${accessToken}`
         return api(err.config)
       } catch {

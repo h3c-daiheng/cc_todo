@@ -1,8 +1,11 @@
 <template>
   <div class="page">
     <div class="header">
-      <h2>我的任务</h2>
-      <el-button type="primary" @click="showCreate = true">+ 新建任务</el-button>
+      <div>
+        <h2>我的任务</h2>
+        <div class="task-count">共 {{ tasks.length }} 个任务</div>
+      </div>
+      <el-button type="primary" @click="showCreate = true" class="btn-new">+ 新建任务</el-button>
     </div>
 
     <div class="filters">
@@ -66,7 +69,8 @@ async function loadTasks() {
   if (filter.status) params.status = filter.status
   try {
     const res = await api.get('/tasks', { params })
-    tasks.value = res.items || res
+    const items = res.items || (res.data && res.data.items) || []
+    tasks.value = items
   } catch (e) {
     ElMessage.error('加载任务失败')
   }
@@ -105,8 +109,10 @@ onMounted(loadTasks)
 </script>
 
 <style scoped>
-.page { padding: 24px; max-width: 1200px; margin: 0 auto; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-h2 { color: #E8572A; font-size: 22px; font-weight: 700; }
-.filters { display: flex; gap: 12px; margin-bottom: 20px; }
+.page { padding: 24px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.header h2 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0; }
+.task-count { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+.btn-new { border-radius: 10px; font-weight: 600; }
+.filters { display: flex; gap: 8px; margin-bottom: 16px; }
 </style>

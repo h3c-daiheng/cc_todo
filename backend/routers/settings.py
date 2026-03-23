@@ -17,6 +17,7 @@ DEFAULT_SETTINGS = {
     "smtp_from": "",
     "smtp_use_tls": False,
     "email_send_hour": 8,
+    "allow_registration": True,
 }
 
 
@@ -32,6 +33,7 @@ class SettingsPayload(BaseModel):
     smtp_from: str | None = None
     smtp_use_tls: bool | None = None
     email_send_hour: int | None = None
+    allow_registration: bool | None = None
 
 
 
@@ -40,7 +42,7 @@ def parse_setting_value(key: str, value: str | None):
         return None
     if key in {"smtp_port", "email_send_hour"}:
         return int(value)
-    if key == "smtp_use_tls":
+    if key in {"smtp_use_tls", "allow_registration"}:
         return value == "true"
     return value
 

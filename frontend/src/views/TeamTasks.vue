@@ -124,8 +124,8 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.page { padding: 24px; max-width: 1200px; margin: 0 auto; }
-.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.page { padding: 24px; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.header h2 { font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0; }
 .header-actions { display: flex; gap: 8px; }
-h2 { color: #E8572A; font-size: 22px; font-weight: 700; margin: 0; }
 </style>

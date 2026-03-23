@@ -3,6 +3,7 @@ import { useUserStore } from '../stores/user.js'
 
 const routes = [
   { path: '/login', component: () => import('../views/Login.vue'), meta: { public: true } },
+  { path: '/register', component: () => import('../views/Register.vue'), meta: { public: true } },
   { path: '/my-tasks', component: () => import('../views/MyTasks.vue') },
   { path: '/team/:id', component: () => import('../views/TeamTasks.vue') },
   { path: '/task/:id', component: () => import('../views/TaskDetail.vue') },
