@@ -30,3 +30,6 @@ ALLOWED_MIME_TYPES = {
 }
 
 DATABASE_URL = "sqlite:///./todo.db"
+
+_BACKEND_DIR = Path(__file__).resolve().parent
+ADMIN_CONFIG_PATH = Path(os.environ.get("TODO_ADMIN_CONFIG", str(_BACKEND_DIR / "admin.yaml")))

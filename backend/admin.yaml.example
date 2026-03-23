@@ -1,0 +1,7 @@
+# Admin accounts — created automatically on app startup.
+# Copy this file to admin.yaml and edit credentials.
+# Users that already exist (by username) are skipped.
+admins:
+  - username: admin
+    email: admin@example.com
+    password: changeme123
