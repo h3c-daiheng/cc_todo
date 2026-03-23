@@ -11,7 +11,7 @@ export const useUserStore = defineStore('user', {
     async login(username, password) {
       const res = await api.post('/auth/login', { username, password })
       setToken(res.data.access_token)
-      this.user = { username }
+      this.user = { username, is_admin: !!res.data.is_admin }
       return res
     },
     async logout() {
