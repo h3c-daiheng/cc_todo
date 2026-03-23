@@ -9,17 +9,35 @@
           <span>我的任务</span>
         </router-link>
 
-        <div class="nav-section">团队</div>
-        <router-link
-          v-for="t in teams"
-          :key="t.id"
-          :to="`/team/${t.id}`"
-          class="nav-item"
-          active-class="active"
-        >
-          <el-icon><UserFilled /></el-icon>
-          <span>{{ t.name }}</span>
+        <router-link to="/dashboard" class="nav-item" active-class="active">
+          <el-icon><DataAnalysis /></el-icon>
+          <span>我的仪表盘</span>
         </router-link>
+
+        <router-link to="/gantt" class="nav-item" active-class="active">
+          <el-icon><Calendar /></el-icon>
+          <span>甘特图</span>
+        </router-link>
+
+        <div class="nav-section">团队</div>
+        <template v-for="t in teams" :key="t.id">
+          <router-link
+            :to="`/team/${t.id}`"
+            class="nav-item"
+            active-class="active"
+          >
+            <el-icon><UserFilled /></el-icon>
+            <span>{{ t.name }}</span>
+          </router-link>
+          <router-link
+            :to="`/team/${t.id}/dashboard`"
+            class="nav-item nav-item-sub"
+            active-class="active"
+          >
+            <el-icon><DataAnalysis /></el-icon>
+            <span>仪表盘</span>
+          </router-link>
+        </template>
       </nav>
 
       <div class="nav-bottom">
@@ -138,6 +156,7 @@ onMounted(loadTeams)
   gap: 2px;
 }
 .logout:hover { color: #FCA5A5; }
+.nav-item-sub { padding-left: 28px; font-size: 12px; }
 .main-content {
   flex: 1;
   margin-left: 200px;
