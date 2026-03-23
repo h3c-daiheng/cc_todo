@@ -335,3 +335,37 @@ def test_start_date_defaults_to_null(client, auth_headers):
     created = client.post("/api/v1/tasks", json={"title": "无日期任务"}, headers=auth_headers)
     assert created.status_code == 200
     assert created.json()["data"]["start_date"] is None
+
+
+def test_list_tasks_filter_by_team_id(client, auth_headers, normal_user, db):
+    """Team member can filter tasks by team_id and gets only that team's tasks."""
+    other = create_user(db, "leader_t2", "leader_t2@test.com", "pass")
+    team = create_team(db, "过滤测试组", other.id)
+    db.add(TeamMember(team_id=team.id, user_id=normal_user.id))
+    db.commit()
+
+    client.post(
+        "/api/v1/tasks",
+        json={"title": "团队任务A", "team_id": team.id},
+        headers=auth_headers,
+    )
+    client.post("/api/v1/tasks", json={"title": "个人任务"}, headers=auth_headers)
+
+    response = client.get(f"/api/v1/tasks?team_id={team.id}", headers=auth_headers)
+    assert response.status_code == 200
+    items = response.json()["data"]["items"]
+    assert all(t["team_id"] == team.id for t in items)
+    assert any(t["title"] == "团队任务A" for t in items)
+
+
+def test_list_tasks_team_id_filter_rejects_non_member(client, db):
+    """Non-member gets 403 when filtering by a team they don't belong to."""
+    outsider = create_user(db, "outsider_t2", "outsider_t2@test.com", "pass")
+    leader = create_user(db, "leader_t3", "leader_t3@test.com", "pass")
+    team = create_team(db, "私密组", leader.id)
+
+    response = client.get(
+        f"/api/v1/tasks?team_id={team.id}",
+        headers=make_headers(outsider.id),
+    )
+    assert response.status_code == 403
