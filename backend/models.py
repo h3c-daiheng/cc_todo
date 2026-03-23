@@ -53,6 +53,7 @@ class Task(Base):
     status: Mapped[str] = mapped_column(String(32), nullable=False, default="pending")
     priority: Mapped[str] = mapped_column(String(16), nullable=False, default="medium")
     due_date: Mapped[date | None] = mapped_column(Date)
+    start_date: Mapped[date | None] = mapped_column(Date)
     created_by: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
     assigned_to: Mapped[int | None] = mapped_column(Integer, ForeignKey("users.id"))
     team_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("teams.id"))

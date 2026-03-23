@@ -32,6 +32,7 @@ class TaskCreatePayload(BaseModel):
     description: str | None = None
     priority: str = "medium"
     due_date: date | None = None
+    start_date: date | None = None
     assigned_to: int | None = None
     team_id: int | None = None
     labels: list[str] = []
@@ -42,6 +43,7 @@ class TaskUpdatePayload(BaseModel):
     description: str | None = None
     priority: str | None = None
     due_date: date | None = None
+    start_date: date | None = None
     labels: list[str] | None = None
 
 
@@ -73,6 +75,7 @@ def serialize_task(task: Task, include_detail: bool = False) -> dict:
         "status": task.status,
         "priority": task.priority,
         "due_date": task.due_date.isoformat() if task.due_date else None,
+        "start_date": task.start_date.isoformat() if task.start_date else None,
         "created_by": task.created_by,
         "assigned_to": task.assigned_to,
         "team_id": task.team_id,
@@ -218,6 +221,7 @@ def create_task(
         status="pending",
         priority=payload.priority,
         due_date=payload.due_date,
+        start_date=payload.start_date,
         created_by=current_user.id,
         assigned_to=assigned_to,
         team_id=payload.team_id,
@@ -260,6 +264,8 @@ def update_task(
         task.priority = payload.priority
     if "due_date" in payload.model_fields_set:
         task.due_date = payload.due_date
+    if "start_date" in payload.model_fields_set:
+        task.start_date = payload.start_date
     if "labels" in payload.model_fields_set:
         replace_labels(db, task, payload.labels or [])
 

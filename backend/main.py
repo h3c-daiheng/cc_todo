@@ -1,6 +1,6 @@
 # backend/main.py
 from fastapi import FastAPI
-from database import create_tables
+from database import create_tables, migrate_tables
 from routers import auth, tasks, teams, comments, attachments, users, settings
 
 app = FastAPI(title="Todo App API")
@@ -8,6 +8,7 @@ app = FastAPI(title="Todo App API")
 @app.on_event("startup")
 def startup():
     create_tables()
+    migrate_tables()
 
     from database import SessionLocal
     from services.admin_init import ensure_admins

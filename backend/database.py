@@ -31,3 +31,13 @@ def get_db():
 def create_tables():
     import models  # noqa: F401
     Base.metadata.create_all(bind=engine)
+
+
+def migrate_tables():
+    """Add columns that were added after initial table creation."""
+    with engine.connect() as conn:
+        try:
+            conn.execute(text("ALTER TABLE tasks ADD COLUMN start_date DATE"))
+            conn.commit()
+        except Exception:
+            pass  # Column already exists — safe to ignore

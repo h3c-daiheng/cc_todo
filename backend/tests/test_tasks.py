@@ -304,3 +304,34 @@ def test_update_task_rejects_null_title(client, auth_headers):
 
     assert response.status_code == 400
     assert response.json()["detail"] == "标题不能为空"
+
+
+def test_create_task_with_start_date(client, auth_headers):
+    response = client.post(
+        "/api/v1/tasks",
+        json={"title": "有开始日期", "start_date": "2026-03-20", "due_date": "2026-03-30"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    data = response.json()["data"]
+    assert data["start_date"] == "2026-03-20"
+    assert data["due_date"] == "2026-03-30"
+
+
+def test_update_task_start_date(client, auth_headers):
+    created = client.post("/api/v1/tasks", json={"title": "任务"}, headers=auth_headers)
+    task_id = created.json()["data"]["id"]
+
+    response = client.put(
+        f"/api/v1/tasks/{task_id}",
+        json={"start_date": "2026-04-01"},
+        headers=auth_headers,
+    )
+    assert response.status_code == 200
+    assert response.json()["data"]["start_date"] == "2026-04-01"
+
+
+def test_start_date_defaults_to_null(client, auth_headers):
+    created = client.post("/api/v1/tasks", json={"title": "无日期任务"}, headers=auth_headers)
+    assert created.status_code == 200
+    assert created.json()["data"]["start_date"] is None
