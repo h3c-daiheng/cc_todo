@@ -25,6 +25,9 @@
         <el-form-item label="截止日期">
           <el-date-picker v-model="newTask.due_date" type="date" value-format="YYYY-MM-DD" />
         </el-form-item>
+        <el-form-item label="开始日期">
+          <el-date-picker v-model="newTask.start_date" type="date" value-format="YYYY-MM-DD" />
+        </el-form-item>
         <el-form-item label="负责人">
           <el-select v-model="newTask.assigned_to" placeholder="选择成员" clearable>
             <el-option
@@ -62,7 +65,7 @@ const team = ref(null)
 const members = ref([])
 const tasks = ref([])
 const showCreate = ref(false)
-const newTask = reactive({ title: '', priority: 'medium', due_date: null, assigned_to: null, labelsInput: '' })
+const newTask = reactive({ title: '', priority: 'medium', due_date: null, start_date: null, assigned_to: null, labelsInput: '' })
 
 async function loadTeam() {
   try {
@@ -90,6 +93,7 @@ async function createTask() {
     title: newTask.title,
     priority: newTask.priority,
     due_date: newTask.due_date || null,
+    start_date: newTask.start_date || null,
     assigned_to: newTask.assigned_to || null,
     team_id: teamId.value,
     labels: newTask.labelsInput ? newTask.labelsInput.split(',').map(s => s.trim()).filter(Boolean) : []
@@ -97,7 +101,7 @@ async function createTask() {
   try {
     await api.post('/tasks', payload)
     showCreate.value = false
-    Object.assign(newTask, { title: '', priority: 'medium', due_date: null, assigned_to: null, labelsInput: '' })
+    Object.assign(newTask, { title: '', priority: 'medium', due_date: null, start_date: null, assigned_to: null, labelsInput: '' })
     await loadTasks()
     ElMessage.success('任务已创建')
   } catch (e) {

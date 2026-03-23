@@ -38,6 +38,9 @@
         <el-form-item label="截止日期">
           <el-date-picker v-model="newTask.due_date" type="date" value-format="YYYY-MM-DD" />
         </el-form-item>
+        <el-form-item label="开始日期">
+          <el-date-picker v-model="newTask.start_date" type="date" value-format="YYYY-MM-DD" />
+        </el-form-item>
         <el-form-item label="标签">
           <el-input v-model="newTask.labelsInput" placeholder="逗号分隔，如：bug,紧急" />
         </el-form-item>
@@ -61,7 +64,7 @@ const router = useRouter()
 const tasks = ref([])
 const showCreate = ref(false)
 const filter = reactive({ priority: '', status: '' })
-const newTask = reactive({ title: '', priority: 'medium', due_date: null, labelsInput: '' })
+const newTask = reactive({ title: '', priority: 'medium', due_date: null, start_date: null, labelsInput: '' })
 
 async function loadTasks() {
   const params = {}
@@ -81,12 +84,13 @@ async function createTask() {
     title: newTask.title,
     priority: newTask.priority,
     due_date: newTask.due_date || null,
+    start_date: newTask.start_date || null,
     labels: newTask.labelsInput ? newTask.labelsInput.split(',').map(s => s.trim()).filter(Boolean) : []
   }
   try {
     await api.post('/tasks', payload)
     showCreate.value = false
-    Object.assign(newTask, { title: '', priority: 'medium', due_date: null, labelsInput: '' })
+    Object.assign(newTask, { title: '', priority: 'medium', due_date: null, start_date: null, labelsInput: '' })
     await loadTasks()
     ElMessage.success('任务已创建')
   } catch (e) {
