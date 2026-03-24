@@ -73,7 +73,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, computed } from 'vue'
+import { ref, onMounted, reactive, computed, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import api from '../api/index.js'
@@ -90,9 +90,13 @@ const team = ref(null)
 const members = ref([])
 const tasks = ref([])
 const showCreate = ref(false)
-const viewMode = ref('board')
+const viewMode = ref(localStorage.getItem('teamTasksView') || 'board')
 const searchQuery = ref('')
 const newTask = reactive({ title: '', priority: 'medium', due_date: null, start_date: null, assigned_to: null, labelsInput: '' })
+
+watch(viewMode, (newVal) => {
+  localStorage.setItem('teamTasksView', newVal)
+})
 
 const filteredTasks = computed(() => {
   if (!searchQuery.value) return tasks.value

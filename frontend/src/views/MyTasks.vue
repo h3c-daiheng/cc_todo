@@ -67,7 +67,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive, computed } from 'vue'
+import { ref, onMounted, reactive, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import api from '../api/index.js'
@@ -81,8 +81,12 @@ const tasks = ref([])
 const showCreate = ref(false)
 const filter = reactive({ priority: '', status: '' })
 const searchQuery = ref('')
-const currentView = ref('board')
+const currentView = ref(localStorage.getItem('myTasksView') || 'board')
 const newTask = reactive({ title: '', priority: 'medium', due_date: null, start_date: null, labelsInput: '' })
+
+watch(currentView, (newVal) => {
+  localStorage.setItem('myTasksView', newVal)
+})
 
 const filteredTasks = computed(() => {
   let result = tasks.value
