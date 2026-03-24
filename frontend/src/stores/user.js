@@ -10,8 +10,8 @@ export const useUserStore = defineStore('user', {
   actions: {
     async login(username, password) {
       const res = await api.post('/auth/login', { username, password })
-      setToken(res.data.access_token)
-      this.user = { username }
+      setToken(res.data?.access_token || res.access_token)
+      this.user = { username, is_admin: !!(res.data?.is_admin ?? res.is_admin) }
       return res
     },
     async logout() {

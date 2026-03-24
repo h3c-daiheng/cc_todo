@@ -26,3 +26,8 @@ env/
 *.egg-info/
 dist/
 build/
+.superpowers/
+.worktrees/
+.claude/
+/openspec/
+backend/todo.db*

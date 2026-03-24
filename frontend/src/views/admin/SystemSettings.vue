@@ -30,6 +30,10 @@
         <el-form-item label="使用 TLS">
           <el-switch v-model="form.smtp_use_tls" />
         </el-form-item>
+        <el-form-item label="开放注册">
+          <el-switch v-model="form.allow_registration" />
+        </el-form-item>
+        <el-divider>邮件服务器</el-divider>
         <el-form-item label="邮件发送时间">
           <el-input-number
             v-model="form.email_send_hour"
@@ -60,6 +64,7 @@ const form = reactive({
   smtp_password: '',
   smtp_use_tls: false,
   email_send_hour: 8,
+  allow_registration: true,
 })
 
 async function loadSettings() {
@@ -75,6 +80,7 @@ async function loadSettings() {
       smtp_password: '',
       smtp_use_tls: !!data.smtp_use_tls,
       email_send_hour: data.email_send_hour ?? 8,
+      allow_registration: data.allow_registration ?? true,
     })
   } catch (e) {
     ElMessage.error('加载设置失败')
@@ -93,6 +99,7 @@ async function saveSettings() {
       smtp_username: form.smtp_username,
       smtp_use_tls: form.smtp_use_tls,
       email_send_hour: form.email_send_hour,
+      allow_registration: form.allow_registration,
     }
     if (form.smtp_password) {
       payload.smtp_password = form.smtp_password
@@ -112,8 +119,8 @@ onMounted(loadSettings)
 </script>
 
 <style scoped>
-.page { padding: 24px; max-width: 800px; margin: 0 auto; }
+.page { padding: 24px; max-width: 800px; }
 .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-h2 { color: #E8572A; font-size: 22px; font-weight: 700; margin: 0; }
-.hint { margin-left: 8px; color: #888; font-size: 13px; }
+h2 { color: var(--text-primary); font-size: 20px; font-weight: 700; margin: 0; }
+.hint { margin-left: 8px; color: var(--text-muted); font-size: 13px; }
 </style>

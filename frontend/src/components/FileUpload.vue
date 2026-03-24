@@ -69,8 +69,8 @@ function formatSize(bytes) {
 <style scoped>
 .att-list { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
 .att-item { display: flex; align-items: center; gap: 8px; font-size: 13px; }
-.att-name { color: #E8572A; text-decoration: none; }
-.att-name:hover { text-decoration: underline; }
-.att-size { color: #aaa; font-size: 12px; }
-.empty { color: #aaa; font-size: 13px; padding: 8px 0; }
+.att-name { color: var(--primary); text-decoration: none; }
+.att-name:hover { text-decoration: underline; color: var(--primary-hover); }
+.att-size { color: var(--text-muted); font-size: 12px; }
+.empty { color: var(--text-muted); font-size: 13px; padding: 8px 0; }
 </style>

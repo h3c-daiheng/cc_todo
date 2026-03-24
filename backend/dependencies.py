@@ -18,6 +18,9 @@ _blacklist: set[str] = set()
 # Brute-force protection: {ip: [(timestamp, success), ...]}
 _login_attempts: dict[str, list] = defaultdict(list)
 
+# Registration rate limiting (separate from login)
+_register_attempts: dict[str, list] = defaultdict(list)
+
 
 def blacklist_token(token: str):
     _blacklist.add(token)
@@ -35,6 +38,20 @@ def record_login_attempt(ip: str, success: bool):
 def is_ip_locked(ip: str) -> bool:
     now = datetime.now(timezone.utc).timestamp()
     recent_failures = [a for a in _login_attempts[ip] if now - a[0] < 300 and not a[1]]
+    if len(recent_failures) >= 10:
+        last_fail = max(a[0] for a in recent_failures)
+        return (now - last_fail) < 900
+    return False
+
+
+def record_register_attempt(ip: str, success: bool):
+    now = datetime.now(timezone.utc).timestamp()
+    _register_attempts[ip] = [a for a in _register_attempts[ip] if now - a[0] < 300] + [(now, success)]
+
+
+def is_register_locked(ip: str) -> bool:
+    now = datetime.now(timezone.utc).timestamp()
+    recent_failures = [a for a in _register_attempts[ip] if now - a[0] < 300 and not a[1]]
     if len(recent_failures) >= 10:
         last_fail = max(a[0] for a in recent_failures)
         return (now - last_fail) < 900

@@ -15,7 +15,7 @@ from dependencies import (
     get_current_user,
     is_team_member,
 )
-from models import Task, TaskLabel, Team, User
+from models import Task, TaskLabel, Team, TeamMember, User
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -32,6 +32,7 @@ class TaskCreatePayload(BaseModel):
     description: str | None = None
     priority: str = "medium"
     due_date: date | None = None
+    start_date: date | None = None
     assigned_to: int | None = None
     team_id: int | None = None
     labels: list[str] = []
@@ -42,6 +43,7 @@ class TaskUpdatePayload(BaseModel):
     description: str | None = None
     priority: str | None = None
     due_date: date | None = None
+    start_date: date | None = None
     labels: list[str] | None = None
 
 
@@ -73,6 +75,7 @@ def serialize_task(task: Task, include_detail: bool = False) -> dict:
         "status": task.status,
         "priority": task.priority,
         "due_date": task.due_date.isoformat() if task.due_date else None,
+        "start_date": task.start_date.isoformat() if task.start_date else None,
         "created_by": task.created_by,
         "assigned_to": task.assigned_to,
         "team_id": task.team_id,
@@ -163,6 +166,7 @@ def list_tasks(
     assigned_to: int | None = None,
     label: str | None = None,
     due_date: date | None = None,
+    team_id: int | None = None,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -190,6 +194,10 @@ def list_tasks(
         query = query.join(TaskLabel).filter(TaskLabel.label == label)
     if due_date is not None:
         query = query.filter(Task.due_date == due_date)
+    if team_id is not None:
+        if not current_user.is_admin and not is_team_member(db, team_id, current_user.id):
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权查看该团队任务")
+        query = query.filter(Task.team_id == team_id)
 
     total = query.count()
     items = query.order_by(Task.id.asc()).offset((page - 1) * size).limit(size).all()
@@ -218,6 +226,7 @@ def create_task(
         status="pending",
         priority=payload.priority,
         due_date=payload.due_date,
+        start_date=payload.start_date,
         created_by=current_user.id,
         assigned_to=assigned_to,
         team_id=payload.team_id,
@@ -260,6 +269,8 @@ def update_task(
         task.priority = payload.priority
     if "due_date" in payload.model_fields_set:
         task.due_date = payload.due_date
+    if "start_date" in payload.model_fields_set:
+        task.start_date = payload.start_date
     if "labels" in payload.model_fields_set:
         replace_labels(db, task, payload.labels or [])
 

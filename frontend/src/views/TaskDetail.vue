@@ -2,6 +2,9 @@
   <div class="page" v-if="task">
     <el-page-header @back="router.back()">
       <template #content>{{ task.title }}</template>
+      <template #extra>
+        <el-button type="danger" @click="deleteTask">删除</el-button>
+      </template>
     </el-page-header>
 
     <el-card class="detail-card">
@@ -51,7 +54,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 import api from '../api/index.js'
 import CommentList from '../components/CommentList.vue'
 import FileUpload from '../components/FileUpload.vue'
@@ -72,7 +75,7 @@ const isUrgent = computed(() => {
 async function loadTask() {
   try {
     const res = await api.get(`/tasks/${route.params.id}`)
-    task.value = res
+    task.value = res.data || res
   } catch (e) {
     ElMessage.error('加载任务失败')
     router.back()
@@ -91,14 +94,29 @@ async function updateStatus(status) {
   }
 }
 
+async function deleteTask() {
+  try {
+    await ElMessageBox.confirm('确定要删除该任务吗？', '确认', { type: 'warning' })
+  } catch {
+    return
+  }
+  try {
+    await api.delete(`/tasks/${task.value.id}`)
+    ElMessage.success('任务已删除')
+    router.back()
+  } catch (e) {
+    ElMessage.error('删除失败')
+  }
+}
+
 onMounted(loadTask)
 </script>
 
 <style scoped>
-.page { padding: 24px; max-width: 900px; margin: 0 auto; }
-.detail-card { margin-top: 20px; }
-.section-card { margin-top: 16px; }
-.section-title { font-weight: 600; color: #2C2C2C; }
-.urgent { color: #E8572A; font-weight: 600; }
+.page { padding: 24px; max-width: 900px; }
+.detail-card { margin-top: 20px; border-radius: 12px; border: 1px solid var(--border); }
+.section-card { margin-top: 16px; border-radius: 12px; border: 1px solid var(--border); }
+.section-title { font-weight: 600; color: var(--text-primary); }
+.urgent { color: var(--danger); font-weight: 600; }
 .loading { padding-top: 60px; }
 </style>

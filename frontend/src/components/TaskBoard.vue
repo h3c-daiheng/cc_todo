@@ -2,8 +2,11 @@
   <div class="board">
     <div v-for="col in columns" :key="col.status" class="column">
       <div class="col-header">
-        <span>{{ col.label }}</span>
-        <el-badge :value="(groupedTasks[col.status] || []).length" type="info" />
+        <div class="col-title">
+          <span class="dot" :style="{ background: col.color }"></span>
+          <span>{{ col.label }}</span>
+        </div>
+        <span class="col-count">{{ (groupedTasks[col.status] || []).length }}</span>
       </div>
       <draggable
         :list="groupedTasks[col.status] || []"
@@ -29,9 +32,9 @@ const props = defineProps({ tasks: Array })
 const emit = defineEmits(['update-status', 'task-click'])
 
 const columns = [
-  { status: 'pending', label: '待处理' },
-  { status: 'in_progress', label: '进行中' },
-  { status: 'done', label: '已完成' },
+  { status: 'pending', label: '待处理', color: '#94A3B8' },
+  { status: 'in_progress', label: '进行中', color: '#6366F1' },
+  { status: 'done', label: '已完成', color: '#10B981' },
 ]
 
 const groupedTasks = computed(() => {
@@ -43,7 +46,6 @@ const groupedTasks = computed(() => {
 })
 
 function onChange(toStatus, evt) {
-  // vuedraggable @change fires with { added: { element, newIndex } } when a card enters a column
   if (evt.added) {
     emit('update-status', { taskId: evt.added.element.id, status: toStatus })
   }
@@ -54,19 +56,34 @@ function onChange(toStatus, evt) {
 .board { display: flex; gap: 16px; align-items: flex-start; min-height: 60vh; }
 .column {
   flex: 1;
-  background: rgba(245,240,235,0.8);
-  border-radius: 10px;
+  background: var(--card-bg);
+  border-radius: 12px;
   padding: 12px;
   min-height: 200px;
+  border: 1px solid var(--border);
 }
 .col-header {
-  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 12px;
-  font-size: 15px;
-  color: #2C2C2C;
+}
+.col-title {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
-.dragging-ghost { opacity: 0.4; background: #F4A259; }
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.col-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+.dragging-ghost { opacity: 0.4; }
 </style>

@@ -3,10 +3,14 @@ import { useUserStore } from '../stores/user.js'
 
 const routes = [
   { path: '/login', component: () => import('../views/Login.vue'), meta: { public: true } },
+  { path: '/register', component: () => import('../views/Register.vue'), meta: { public: true } },
   { path: '/my-tasks', component: () => import('../views/MyTasks.vue') },
   { path: '/team/:id', component: () => import('../views/TeamTasks.vue') },
   { path: '/task/:id', component: () => import('../views/TaskDetail.vue') },
   { path: '/team/:id/manage', component: () => import('../views/TeamManage.vue') },
+  { path: '/dashboard', component: () => import('../views/Dashboard.vue') },
+  { path: '/team/:id/dashboard', component: () => import('../views/TeamDashboard.vue') },
+  { path: '/gantt', component: () => import('../views/Gantt.vue') },
   { path: '/admin/users', component: () => import('../views/admin/UserManage.vue'), meta: { requireAdmin: true } },
   { path: '/admin/settings', component: () => import('../views/admin/SystemSettings.vue'), meta: { requireAdmin: true } },
   { path: '/', redirect: '/my-tasks' },
