@@ -30,6 +30,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
+import { getErrorMessage } from '../api/index.js'
 import { useUserStore } from '../stores/user.js'
 
 const router = useRouter()
@@ -45,7 +46,7 @@ async function handleLogin() {
     await store.login(form.username, form.password)
     router.push('/my-tasks')
   } catch (e) {
-    error.value = e.response?.data?.detail || '登录失败'
+    error.value = getErrorMessage(e, '登录失败')
   } finally {
     loading.value = false
   }
